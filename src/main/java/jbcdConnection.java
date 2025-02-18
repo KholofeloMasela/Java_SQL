@@ -41,7 +41,7 @@ public class jbcdConnection {
 //            stmt = conn.createStatement();
 
 
-
+//            Sql query for first table
             String sql = "SELECT * FROM Clients_records WHERE Patient_ID = ?";
             PreparedStatement customerStmt = conn.prepareStatement(sql);
             customerStmt.setInt(1, PatientID);
@@ -65,22 +65,21 @@ public class jbcdConnection {
                 System.out.println("*******************************************************************************");
 
 
-                String clientQuary = "SELECT * FROM account_details WHERE Account_ID = ?";
-                PreparedStatement clientStmt = conn.prepareStatement(clientQuary);
+                String clientQuery = "SELECT * FROM account_details WHERE Account_ID = ?";
+                PreparedStatement clientStmt = conn.prepareStatement(clientQuery);
                 clientStmt.setInt(1, PatientID);
                 ResultSet clientResults = clientStmt.executeQuery();
 
 
 
-//                System.out.println("Patient ID: " + userId + ", Name: " + firstName + " " + lastName + ", Street: " + email);
 
-                if(clientResults.next()){
+                while(clientResults.next()){
 
 
 
                     int accountId = clientResults.getInt("Account_ID");
                     long accountNumber = clientResults.getLong("Account_Number");
-//                    enum accountType = clientResults.getString("Account_Type");
+                    String accountType = clientResults.getString("Account_Type");
                     double CurrentBalance = clientResults.getInt("Current_Balance");
 
 
@@ -88,9 +87,11 @@ public class jbcdConnection {
                     System.out.println("Account ID: " + accountId);
                     System.out.println("Account Type: " + accountNumber);
                     System.out.println("Balance: " + CurrentBalance);
+                    System.out.println("Account Type: "+ accountType);
                     System.out.println("************************************************************************************");
 
-                    String transactionQuery = "SELECT * FROM transactions WHERE Transaction_id = ?";
+                    String transactionQuery =
+                            "SELECT * FROM transactions t JOIN account_details a ON t.Account_Number = a.Account_Number WHERE a.Account_ID = ? AND a.account_type = 'CHECKING'";
                     PreparedStatement transactionStmt = conn.prepareStatement(transactionQuery);
                     transactionStmt.setInt(1, accountId);
                     ResultSet transactionResult = transactionStmt.executeQuery();
@@ -100,7 +101,7 @@ public class jbcdConnection {
                         int TransactionId = transactionResult.getInt("Transaction_id");
                         long AccountNumber = transactionResult.getLong("Account_Number");
                         String transactionDate = transactionResult.getString("Transaction_Date");
-//                        enum TypeOfTransaction = transactionResult.getString("Type_of_transaction");
+                        String TypeOfTransaction = transactionResult.getString("Type_of_transaction");
                         double amount = transactionResult.getInt("Amount");
 
 
@@ -108,7 +109,9 @@ public class jbcdConnection {
                         System.out.println("Transaction ID: " + TransactionId);
                         System.out.println("Account number: " + AccountNumber);
                         System.out.println("Transaction Date: " + transactionDate);
+                        System.out.println("Type of Transaction: "+ TypeOfTransaction);
                         System.out.println("Amount: "+ amount);
+
                         System.out.println("*********************************************************************");
                     }
                     transactionResult.close();
